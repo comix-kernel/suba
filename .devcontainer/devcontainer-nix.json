@@ -1,5 +1,5 @@
 {
-  "name": "comix-devcontainer-nix",
+  "name": "suba-devcontainer-nix",
   "build": {
     "dockerfile": "Dockerfile.nix"
   },

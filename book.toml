@@ -1,15 +1,15 @@
 [book]
-authors = ["Comix Team"]
+authors = ["Suba"]
 language = "zh-CN"
 src = "document"
-title = "Comix 内核文档"
-description = "Comix 是一个用 Rust 编写的类 Unix 内核，用于教育目的"
+title = "Suba 内核文档"
+description = "Suba 是一个可以在 QEMU 中运行的双核 RV64 教学内核"
 
 [output.html]
 default-theme = "rust"
 preferred-dark-theme = "navy"
-git-repository-url = "https://github.com/comix-kernel/comix"
-edit-url-template = "https://github.com/comix-kernel/comix/edit/main/{path}"
+git-repository-url = "https://github.com/comix-kernel/suba"
+edit-url-template = "https://github.com/comix-kernel/suba/edit/main/{path}"
 
 [output.html.search]
 enable = true

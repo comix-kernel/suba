@@ -19,7 +19,7 @@ pub fn run(
     let mut history = History::default();
     terminal.print(&programs::menu())?;
     loop {
-        let line = match terminal.readline("comix> ", &mut history)? {
+        let line = match terminal.readline("suba> ", &mut history)? {
             Line::Text(line) => line,
             Line::Cancel => continue,
             Line::End => admin.shutdown(),

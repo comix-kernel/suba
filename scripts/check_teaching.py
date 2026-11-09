@@ -58,7 +58,7 @@ def check_kernel():
 def check_shell():
     with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT) as proc:
-        def prompt(marker=b"comix> ", contains=b""):
+        def prompt(marker=b"suba> ", contains=b""):
             data = bytearray()
             end = time.monotonic() + 10
             while not (data.endswith(marker) and contains in data):
@@ -73,12 +73,12 @@ def check_shell():
             proc.stdin.flush()
             reply = prompt()
             assert reply.startswith(cmd + b"\n"), reply
-            return reply[len(cmd) + 1:-len(b"comix> ")].rstrip(b"\n")
+            return reply[len(cmd) + 1:-len(b"suba> ")].rstrip(b"\n")
 
         try:
             boot = prompt()
             check_boot(boot)
-            assert b"COMIX  /  SERIAL SHELL" in boot
+            assert b"SUBA  /  SERIAL SHELL" in boot
             for title in (b"hello [NAME]", b"ps", b"calc [EXPR]", b"wc [PATH]", b"edit PATH"):
                 assert title in boot and title in issue(b"apps"), title
             shell_id = issue(b"id")
@@ -101,7 +101,7 @@ def check_shell():
             prompt()
             assert issue(b"calc 13+8") == b"21"
             proc.stdin.write(b"\x1b[A\n"); proc.stdin.flush()
-            prompt(contains=b"21\r\ncomix> ")
+            prompt(contains=b"21\r\nsuba> ")
             assert b"Unknown command" in issue(b"no-such-program")
 
             assert b"cat PATH" in issue(b"help")

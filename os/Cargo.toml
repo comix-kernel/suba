@@ -4,7 +4,7 @@ resolver = "2"
 
 [package]
 autotests = false
-name = "comix"
+name = "suba"
 version = "0.1.0"
 edition = "2021"
 
@@ -21,7 +21,7 @@ trace=[]
 selftest = []
 
 [[bin]]
-name = "comix"
+name = "suba"
 path = "src/main.rs"
 test = false
 bench = false

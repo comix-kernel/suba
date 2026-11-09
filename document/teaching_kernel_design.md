@@ -1,6 +1,6 @@
-# Comix 教学内核裁剪与重构设计
+# Suba 教学内核裁剪与重构设计
 
-本文以 Comix 提交 `e2dc94b` 为基线，描述拟实施的教学版本。目标平台为 QEMU `virt`、RV64、OpenSBI、128 MiB 内存。验收使用两个 hart（RISC-V 硬件线程）。固件运行在 M 态，Comix 内核、服务和应用全部运行在 S 态，共用一张 Sv39 根页表。
+本文以 Comix 提交 `e2dc94b` 为基线，描述拟实施的教学版本。目标平台为 QEMU `virt`、RV64、OpenSBI、128 MiB 内存。验收使用两个 hart（RISC-V 硬件线程）。固件运行在 M 态，Suba 内核、服务和应用全部运行在 S 态，共用一张 Sv39 根页表。
 
 当前源码、早期演示实现的差距及验收入口见[架构对照与实现](teaching_kernel_implementation.md#架构对照与实现)。规模目标为数千行，Make 验收报告实测行数。
 
@@ -20,21 +20,21 @@
 
 ### Plan 9：从服务入口到内核对象
 
-Plan 9 将发布、命名和访问分成三步。发布者向 `/srv` 的条目写入 fd，`srvwrite` 取得相应的 `Chan` 引用，另一进程打开条目时，`srvopen` 检查权限并返回该通道的引用。路径遍历时，`findmount` 从当前进程的 `Pgrp` 查挂载表，遇到挂载点才转到目标通道。于是一个服务可被不同进程挂到不同位置。Comix 让挂载表存储服务名，并把**每次新建连接**作为选择版本的时刻，已有连接持有原实例。这是 Comix 为运行时替换增加的间接寻址。[Plan 9 设计原文](https://9p.io/sys/doc/9.html) · [端点的发布和取得](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/devsrv.c#L104) · [按进程组解析挂载点](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/chan.c#L855)
+Plan 9 将发布、命名和访问分成三步。发布者向 `/srv` 的条目写入 fd，`srvwrite` 取得相应的 `Chan` 引用，另一进程打开条目时，`srvopen` 检查权限并返回该通道的引用。路径遍历时，`findmount` 从当前进程的 `Pgrp` 查挂载表，遇到挂载点才转到目标通道。于是一个服务可被不同进程挂到不同位置。Suba 让挂载表存储服务名，并把**每次新建连接**作为选择版本的时刻，已有连接持有原实例。这是 Suba 为运行时替换增加的间接寻址。[Plan 9 设计原文](https://9p.io/sys/doc/9.html) · [端点的发布和取得](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/devsrv.c#L104) · [按进程组解析挂载点](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/chan.c#L855)
 
-服务端的 `sattach` 建立根 fid，`swalk` 查旧 fid 并准备目标 fid，`sclunk` 释放 fid。客户端的 `mountmux` 按 tag 找到在途请求，允许不同请求的回复交错。内核对象也能实现这一套文件语义：Plan 9 的进程设备按槽号找到进程，再核对 pid，避免槽位复用后读到另一个进程的状态。Comix 用带类型的本机消息保留这两种身份及其寿命，任务状态服务则在打开时取快照。首版将多分量 Walk 定义为全部成功才产生目标 fid，省去 9P 的部分遍历结果和线编码。[lib9p 的 fid 管理](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/lib9p/srv.c#L300) · [按 tag 匹配回复](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/devmnt.c#L934) · [进程状态读取](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/devproc.c#L716)
+服务端的 `sattach` 建立根 fid，`swalk` 查旧 fid 并准备目标 fid，`sclunk` 释放 fid。客户端的 `mountmux` 按 tag 找到在途请求，允许不同请求的回复交错。内核对象也能实现这一套文件语义：Plan 9 的进程设备按槽号找到进程，再核对 pid，避免槽位复用后读到另一个进程的状态。Suba 用带类型的本机消息保留这两种身份及其寿命，任务状态服务则在打开时取快照。首版将多分量 Walk 定义为全部成功才产生目标 fid，省去 9P 的部分遍历结果和线编码。[lib9p 的 fid 管理](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/lib9p/srv.c#L300) · [按 tag 匹配回复](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/devmnt.c#L934) · [进程状态读取](https://github.com/plan9foundation/plan9/blob/ed1a9c21e3297d7497a48053d33683375c75fbb4/sys/src/9/port/devproc.c#L716)
 
 ### Theseus：替换时必须找到哪些依赖
 
 Theseus 论文把组件替其他组件长期保管的内部状态称为 *state spill*。源码中可以看到依赖如何影响替换粒度：应用装载器在选定的 crate 命名空间解析入口，把应用 crate 引用和命名空间交给新任务。替换器遍历旧 crate 的公开段及依赖这些段的重定位项，改写目标地址，更新依赖记录。它有复制对应数据段的路径，也允许显式调用状态迁移函数。这解释了为什么旧 crate 从命名空间移除后，仍可能有运行中的任务持有它。[Theseus 论文，第 3–6 节](https://www.usenix.org/conference/osdi20/presentation/boos) · [应用任务持有装载引用](https://github.com/theseus-os/Theseus/blob/1fbfe567075a65ed749b6680db1aeb538819c70c/kernel/spawn/src/lib.rs#L215) · [跟踪段依赖](https://github.com/theseus-os/Theseus/blob/1fbfe567075a65ed749b6680db1aeb538819c70c/kernel/crate_swap/src/lib.rs#L316) · [调用迁移函数](https://github.com/theseus-os/Theseus/blob/1fbfe567075a65ed749b6680db1aeb538819c70c/kernel/crate_swap/src/lib.rs#L505)
 
-Comix 将运行时替换的边界定在文件服务实例。调用者只能持有连接，服务独占其 fid 表和业务数据。两个实现都链接进同一镜像，切换只需改变一个服务名的绑定。旧连接自然标出仍依赖旧实现的调用者。稳定契约包括导出路径、打开模式、读写效果和错误含义；Rust 类型检查负责消息与资源的交接，两版服务共用的契约测试负责检查行为。快照模式版本、目录发布代号和文件内容修订号分别描述格式、实例绑定和业务更新，三者独立演进。
+Suba 将运行时替换的边界定在文件服务实例。调用者只能持有连接，服务独占其 fid 表和业务数据。两个实现都链接进同一镜像，切换只需改变一个服务名的绑定。旧连接自然标出仍依赖旧实现的调用者。稳定契约包括导出路径、打开模式、读写效果和错误含义；Rust 类型检查负责消息与资源的交接，两版服务共用的契约测试负责检查行为。快照模式版本、目录发布代号和文件内容修订号分别描述格式、实例绑定和业务更新，三者独立演进。
 
 ### NrOS：先写顺序规格，再决定复制什么
 
 NrOS 的 `KernelNode` 把进程分配和核分配表示为写操作，将“指定核上的当前进程”表示为查询。业务规则在 `dispatch_mut` 和 `dispatch` 中以顺序代码实现。该版本引用的复制库先收集发起线程的待办操作，由合并者成批追加日志，再按序执行，并将结果分发给本副本的发起线程。读操作采样已完成的日志位置 `ctail`，本地副本追到该位置才查询。环形日志需要等最慢副本越过旧记录才能复用槽位。[NrOS 论文，第 2、4 节](https://www.usenix.org/conference/osdi21/presentation/bhardwaj) · [内核顺序对象](https://github.com/vmware-archive/node-replicated-kernel/blob/38557a67be10c249853300560cc7e1d09f90c8aa/kernel/src/nr.rs#L171) · [读取与合并](https://github.com/gz/node-replication/blob/c90bf138faebd09aa51e629650fdf7d026dd1331/nr/src/replica.rs#L504) · [日志回收](https://github.com/gz/node-replication/blob/c90bf138faebd09aa51e629650fdf7d026dd1331/nr/src/log.rs#L536)
 
-Comix 首先给每个可变对象找一个所有者。UART 字节只由串口服务写出，任务只由所属核调度。两个核都要发现当前服务，因而选择**服务名到实例的绑定**作为首个复制对象。先在单个普通目录上定义条件更新，再在两个核上用同一日志驱动这段代码。双核教学实现用短锁一次公布完整批次，读者以已发布末端为追赶目标。这样把并发推理集中在日志、接入和传输三处，文件服务作者仍可按收到请求的次序推理业务效果。
+Suba 首先给每个可变对象找一个所有者。UART 字节只由串口服务写出，任务只由所属核调度。两个核都要发现当前服务，因而选择**服务名到实例的绑定**作为首个复制对象。先在单个普通目录上定义条件更新，再在两个核上用同一日志驱动这段代码。双核教学实现用短锁一次公布完整批次，读者以已发布末端为追赶目标。这样把并发推理集中在日志、接入和传输三处，文件服务作者仍可按收到请求的次序推理业务效果。
 
 ## 二、整体架构
 

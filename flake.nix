@@ -1,5 +1,5 @@
 {
-  description = "Comix RV64 teaching kernel";
+  description = "Suba RV64 teaching kernel";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     flake-utils.url = "github:numtide/flake-utils";

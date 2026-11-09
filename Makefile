@@ -2,7 +2,7 @@ TARGET := riscv64imac-unknown-none-elf
 CARGO_TARGET_DIR ?= $(CURDIR)/target/teaching
 export CARGO_TARGET_DIR
 CARGO := cargo
-ELF := $(CARGO_TARGET_DIR)/$(TARGET)/release/comix
+ELF := $(CARGO_TARGET_DIR)/$(TARGET)/release/suba
 OBJCOPY ?= llvm-objcopy
 STAGE ?= 6
 TRACE ?= 1
@@ -24,7 +24,7 @@ run: build
 	$(QEMU) $(QEMU_ARGS) -kernel "$(ELF).bin"
 
 host-test:
-	cd os && $(CARGO) test --locked --workspace --exclude comix --target "$$(rustc -vV | sed -n 's/^host: //p')"
+	cd os && $(CARGO) test --locked --workspace --exclude suba --target "$$(rustc -vV | sed -n 's/^host: //p')"
 
 check-teaching: host-test budget
 	cd os && $(CARGO) build --locked --release $(TRACE_FLAGS) --target $(TARGET) --features selftest

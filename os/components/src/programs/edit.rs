@@ -169,7 +169,7 @@ impl Buffer {
         let skip = prefix[..left].chars().count();
         *top = (*top).clamp((row + 1).saturating_sub(ROWS), row);
         let mut screen = format!(
-            "\x1b[?25l\x1b[HComix Edit   {path}{}\x1b[K",
+            "\x1b[?25l\x1b[HSuba Edit   {path}{}\x1b[K",
             if dirty { "  *" } else { "" }
         );
         let mut lines = self.text.split('\n').skip(*top);

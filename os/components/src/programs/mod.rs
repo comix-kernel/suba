@@ -63,7 +63,7 @@ pub(crate) fn find(name: &str) -> Option<&'static Program> {
 }
 
 pub(crate) fn menu() -> String {
-    let mut text = String::from("\n  COMIX  /  SERIAL SHELL\n\n  Programs\n");
+    let mut text = String::from("\n  SUBA  /  SERIAL SHELL\n\n  Programs\n");
     for (i, p) in PROGRAMS.iter().enumerate() {
         writeln!(text, "   {}   {:<14} {}", i + 1, p.usage, p.summary).unwrap();
     }

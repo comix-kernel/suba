@@ -1,0 +1,31 @@
+[workspace]
+members = ["api", "components", "registry"]
+resolver = "2"
+
+[package]
+autotests = false
+name = "comix"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+directory = { path = "registry" }
+fdt = "0.1.5"
+talc = { version = "4.4.3", default-features = false }
+service-api = { path = "api" }
+components = { path = "components" }
+
+[features]
+default=["trace"]
+trace=[]
+selftest = []
+
+[[bin]]
+name = "comix"
+path = "src/main.rs"
+test = false
+bench = false
+
+[profile.release]
+debug = 1
+panic = "abort"

@@ -1,0 +1,145 @@
+# 目录
+
+[介绍](README.md)
+
+[教学内核需求交接](teaching_kernel_requirements.md)
+
+[教学内核架构综述](teaching_kernel_overview.md)
+
+[教学内核裁剪与重构设计（提案）](teaching_kernel_design.md)
+
+[教学内核的结构与运行规约](teaching_kernel_implementation.md)
+
+# 历史基线 · 内存管理
+
+- [内存管理概述](mm/README.md)
+  - [架构设计](mm/architecture.md)
+  - [地址抽象](mm/address.md)
+  - [物理帧分配器](mm/frame_allocator.md)
+  - [页表管理](mm/page_table.md)
+  - [内存空间](mm/memory_space.md)
+  - [全局分配器](mm/global_allocator.md)
+  - [API 参考](mm/api_reference.md)
+
+# 历史基线 · 日志系统
+
+- [日志系统概述](log/README.md)
+  - [架构设计](log/architecture.md)
+  - [日志级别](log/level.md)
+  - [缓冲区和条目](log/buffer_and_entry.md)
+  - [使用边界](log/usage.md)
+  - [API 文档入口](log/api_reference.md)
+
+# 历史基线 · 网络
+
+- [网络模块概览](net/README.md)
+  - [整体架构](net/architecture.md)
+  - [设备与接口](net/device_and_interface.md)
+  - [协议栈运行时](net/stack_runtime.md)
+  - [Socket 与 syscall](net/socket_syscall.md)
+  - [Loopback 与 poll](net/loopback_poll.md)
+  - [测试与排查](net/testing.md)
+  - [网络维护边界](net/network_implementation_guide.md)
+  - [netperf / netserver 测试说明](net/netperf.md)
+
+# 历史基线 · 同步原语
+
+- [同步机制概述](sync/README.md)
+  - [RawSpinLock](sync/raw_spin_lock.md)
+  - [自旋锁](sync/spin_lock.md)
+  - [互斥锁](sync/mutex.md)
+  - [读写锁](sync/rwlock.md)
+  - [中断保护](sync/intr_guard.md)
+  - [Per-CPU 变量](sync/per_cpu.md)
+  - [抢占控制](sync/preempt.md)
+  - [SMP 与中断](sync/smp_interrupts.md)
+  - [死锁检测](sync/deadlock.md)
+
+# 历史基线 · 内核子系统
+
+- [启动流程](kernel/boot.md)
+
+## 任务管理
+
+- [任务管理概述](kernel/task/README.md)
+  - [任务结构](kernel/task/task.md)
+  - [调度器](kernel/task/scheduler.md)
+  - [上下文切换](kernel/task/context.md)
+  - [内存空间](kernel/task/memory_space.md)
+  - [等待队列](kernel/task/wait_queue.md)
+
+## 中断与陷阱
+
+- [中断处理](kernel/trap/trap.md)
+  - [上下文保存](kernel/trap/context.md)
+  - [特权级切换](kernel/trap/switch.md)
+
+# 历史基线 · 虚拟文件系统
+
+- [VFS 概述](vfs/README.md)
+  - [整体架构](vfs/architecture.md)
+  - [Inode 与 Dentry](vfs/inode_and_dentry.md)
+  - [File 与 FDTable](vfs/file_and_fdtable.md)
+  - [路径解析与挂载](vfs/path_and_mount.md)
+  - [FileSystem 与错误处理](vfs/filesystem_and_errors.md)
+  - [文件锁与设备管理](vfs/filelock_and_devices.md)
+  - [维护边界](vfs/usage.md)
+
+# 历史基线 · 文件系统实现
+
+- [FS 模块概述](fs/README.md)
+  - [Tmpfs - 临时文件系统](fs/tmpfs.md)
+  - [ProcFS - 进程信息](fs/procfs.md)
+  - [SysFS - 系统设备](fs/sysfs.md)
+  - [Ext4 - Linux文件系统](fs/ext4.md)
+  - [VFAT/FAT - mount 兼容路径](fs/vfat.md)
+  - [SimpleFS - 测试文件系统](fs/simple_fs.md)
+
+# 历史基线 · 设备与驱动
+
+- [设备与驱动概览](devices/README.md)
+
+# 历史基线 · 进程间通信
+- [进程间通信概述](ipc/README.md)
+  - [管道](ipc/pipe.md)
+  - [消息](ipc/message.md)
+  - [共享内存](ipc/shared_memory.md)
+  - [信号](ipc/signal.md)
+  - [信号生命周期](ipc/signal_lifecycle.md)
+
+# 历史基线 · 系统调用
+
+- [系统调用速查](syscall/README.md)
+
+# 历史基线 · 架构相关
+
+- [架构抽象概览](arch/README.md)
+
+## RISC-V
+
+- [RISC-V寄存器](arch/riscv/riscv_register.md)
+- [用户栈布局](arch/riscv/stack_layout.md)
+- [多核启动](arch/riscv/smp_boot.md)
+- [核间中断 (IPI)](arch/riscv/ipi.md)
+
+## LoongArch64
+
+- [LoongArch64](arch/loongarch/README.md)
+  - [启动与用户态运行修复总结（comix-1 当前分支）](arch/loongarch/bringup_userland.md)
+
+
+---
+
+- [已知缺陷](known_bugs.md)
+- [缺陷排查交接](bug_hunt_handoff.md)
+
+---
+
+- [脚本工具](scripts/README.md)
+  - [SimpleFS 镜像打包](scripts/make_init_simple_fs.md)
+  - [文档链接转换](scripts/rewrite_links.md)
+  - [代码质量检查](scripts/style-check.md)
+
+---
+
+[API 文档](api.md)

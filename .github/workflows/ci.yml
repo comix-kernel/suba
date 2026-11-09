@@ -1,0 +1,17 @@
+name: Run tests & Code Quality Checks
+
+on: [push, pull_request]
+
+jobs:
+  teaching-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly-2025-01-18
+          targets: riscv64imac-unknown-none-elf
+          components: rustfmt, clippy
+      - run: sudo apt-get update && sudo apt-get install -y qemu-system-misc opensbi llvm
+      - run: cd os && cargo fmt --all -- --check && cargo clippy --workspace --target riscv64imac-unknown-none-elf -- -D warnings
+      - run: make check-teaching STAGE=6
